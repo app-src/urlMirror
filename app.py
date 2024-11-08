@@ -1,17 +1,20 @@
+import os
 from flask import Flask, request, jsonify
 import requests
 
 app = Flask(__name__)
 
-# Set your Ngrok base URL here
-NGROK_BASE_URL = "https://9239-2401-4900-1c55-3cdd-79bd-663c-2ed0-5704.ngrok-free.app"
+# Fetch Ngrok URL from the environment variable
+NGROK_BASE_URL = os.getenv("NGROK_BASE_URL")
 
 @app.route('/<path:endpoint>', methods=["GET", "POST", "PUT", "DELETE", "PATCH"])
 def proxy(endpoint):
+    if not NGROK_BASE_URL:
+        return jsonify({"error": "NGROK_BASE_URL is not set"}), 500
+
     # Construct the target URL
     target_url = f"{NGROK_BASE_URL}/{endpoint}"
 
-    # Forward the request
     try:
         # Use the appropriate HTTP method
         if request.method == "GET":
